@@ -12,32 +12,30 @@ export default function MicrophoneComponent() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
-  const transcriptRef = useRef(""); // Keep the transcript in a ref to avoid state sync issues
+  const transcriptRef = useRef("");
 
   const startRecording = () => {
     setIsRecording(true);
     recognitionRef.current = new window.webkitSpeechRecognition();
     recognitionRef.current.continuous = true;
-    recognitionRef.current.interimResults = false; // Disable interim results
-    recognitionRef.current.lang = "en-US"; // Set language to English for better accuracy
+    recognitionRef.current.interimResults = false;
+    recognitionRef.current.lang = "en-US";
 
-    // Appending the final text only
     recognitionRef.current.onresult = (event: any) => {
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) { // Only process final results to avoid repetition
+        if (event.results[i].isFinal) {
           const resultText = event.results[i][0].transcript.trim();
           if (resultText.length > 0) {
-            transcriptRef.current += " " + resultText; // Append new final results
+            transcriptRef.current += " " + resultText;
           }
         }
       }
-      setTranscript(transcriptRef.current); // Update state with the full transcript
+      setTranscript(transcriptRef.current);
     };
 
-    // Keep the listener active after pauses
     recognitionRef.current.onend = () => {
       if (isRecording) {
-        recognitionRef.current.start(); // Restart if the recording is still active
+        recognitionRef.current.start();
       }
     };
 
@@ -61,8 +59,8 @@ export default function MicrophoneComponent() {
 
   const handleToggleRecording = () => {
     if (!isRecording) {
-      transcriptRef.current = ""; // Clear the transcript when starting a new recording
-      setTranscript(""); // Clear the displayed transcript
+      transcriptRef.current = "";
+      setTranscript("");
       startRecording();
     } else {
       stopRecording();
